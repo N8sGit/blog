@@ -6,6 +6,9 @@ import * as data from './checkboxConstants.js'
 import Checkbox from './checkbox.js'
 import Editor from './editor.js'
 import AdminPostBar from './adminPostBar.js'
+import {logout} from '../store'
+import {Login} from '../components'
+
 
 let checkboxEls = Object.keys(data).map(function (key) {
     return key;
@@ -24,7 +27,7 @@ const initialState = {
 class Admin extends React.Component{
     constructor(props){
         super(props)
-        this.state = {...initialState}
+        this.state = {...initialState, isLoggedIn: this.props.isLoggedIn}
     }
 
     componentDidMount = () => {
@@ -107,51 +110,55 @@ class Admin extends React.Component{
 
 
     render(){
+        console.log(this.props.isLoggedIn, 'isLoggedIn');
+return this.props.isLoggedIn ? (
+    <div id="admin-page">
+        <div id='admin-large'>
+        <a href="#" onClick={this.props.handleClick}> log out </a>
+                <p> The currently selected post is: {this.state.title} </p>
+            <form onSubmit={this.handleFormSubmit}>
+                {this.createCheckboxes()}
 
-        return (
-<div id="admin-page">
-    <div id='admin-large'>
-            <p> The currently selected post is: {this.state.title} </p>
-        <form onSubmit={this.handleFormSubmit}>
-              {this.createCheckboxes()}
-
-              <button className="btn btn-default" type="submit" >Save</button>
-              
-              <button
-                className="btn btn-default" type="submit" onClick={() => {
-                  window.location.reload()
-              }} > Clear
-              </button>
-        </form>
-
-        <div className ="textFields">
-            <form>
-                <textarea
-                    id="titleInput" className="field" onChange={this.onChangeTitle.bind(this)}
-                    value={this.state.title} rows="1" cols="100" placeholder="title" 
-                />
-
-                <Editor
-                    className="field" placeholder={'Write here'} selectedId={this.state.selectedId}
-                    title={this.state.title} text={this.state.text} 
-                />
-            <div className="button-parent">
+                <button className="btn btn-default" type="submit" >Save</button>
+                
                 <button
-                    className="btn btn-default" type="button" onClick={ () => {this.reset()}
-                    }>
-                        Clear
+                    className="btn btn-default" type="submit" onClick={() => {
+                    window.location.reload()
+                }} > Clear
                 </button>
-            </div>
             </form>
+
+            <div className ="textFields">
+                <form>
+                    <textarea
+                        id="titleInput" className="field" onChange={this.onChangeTitle.bind(this)}
+                        value={this.state.title} rows="1" cols="100" placeholder="title" 
+                    />
+
+                    <Editor
+                        className="field" placeholder={'Write here'} selectedId={this.state.selectedId}
+                        title={this.state.title} text={this.state.text} 
+                    />
+                <div className="button-parent">
+                    <button
+                        className="btn btn-default" type="button" onClick={ () => {this.reset()}
+                        }>
+                            Clear
+                    </button>
+                </div>
+                </form>
+            </div>
+        </div>
+        <div id="admin-small"> 
+                <div id="titleDisplay">
+            { <AdminPostBar setSidebar = {this.setSidebar.bind(this)} />}
+            </div>
         </div>
     </div>
-    <div id="admin-small"> 
-            <div id="titleDisplay">
-        { <AdminPostBar setSidebar = {this.setSidebar.bind(this)} />}
-        </div>
-    </div>
-</div>
-        )
+        ) : (
+    <div>
+    <Login />
+    </div>)
     }
 }
 //This map state will have to be altered to reflect changes in the editor
@@ -159,7 +166,8 @@ const mapState = (state) => {
     return {
        text: state.post.text,
        title: state.post.title,
-       selectedCategories: state.post.allCategories
+       selectedCategories: state.post.allCategories,
+       isLoggedIn: !!state.user.id
     }
   }
 
@@ -167,7 +175,10 @@ const mapDispatch = (dispatch) => {
     return {
         add (text, title){
             dispatch(add(text, title))
-        }
+        },
+        handleClick() {
+            dispatch(logout())
+          }
       }
     }
 export default connect(mapState, mapDispatch)(Admin)

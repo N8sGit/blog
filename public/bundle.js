@@ -21850,6 +21850,22 @@ var Routes = function (_Component) {
     value: function componentDidMount() {
       this.props.loadInitialData();
     }
+
+    //   <Switch>
+    //   {/* Routes placed here are available to all visitors */}
+    //   <Route path="/login" component={Login} />
+    //   <Route path="/signup" component={Signup} />
+    //   {
+    //     isLoggedIn &&
+    //       <Switch>
+    //         {/* Routes placed here are only available after logging in */}
+    //         <Route path="/home" component={UserHome} />
+    //       </Switch>
+    //   }
+    //   {/* Displays our Login component as a fallback */}
+    //   <Route component={Login} />
+    // </Switch>
+
   }, {
     key: 'render',
     value: function render() {
@@ -21866,9 +21882,9 @@ var Routes = function (_Component) {
             null,
             _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/', component: _components.Home }),
             _react2.default.createElement(_reactRouterDom.Route, { path: '/sideBar', component: _components.Sidebar }),
-            _react2.default.createElement(_reactRouterDom.Route, { path: '/' + adminRoute, component: _components.Admin }),
             _react2.default.createElement(_reactRouterDom.Route, { path: '/categoryView/:name', component: _categoryView2.default }),
-            _react2.default.createElement(_reactRouterDom.Route, { path: '/postView/:id', component: _components.PostView })
+            _react2.default.createElement(_reactRouterDom.Route, { path: '/postView/:id', component: _components.PostView }),
+            _react2.default.createElement(_reactRouterDom.Route, { path: '/' + adminRoute, component: _components.Admin })
           )
         )
       );
@@ -22966,6 +22982,10 @@ var _adminPostBar = __webpack_require__(158);
 
 var _adminPostBar2 = _interopRequireDefault(_adminPostBar);
 
+var _store = __webpack_require__(12);
+
+var _components = __webpack_require__(76);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -23094,7 +23114,7 @@ var Admin = function (_React$Component) {
             _this.setState({ title: event.target.value });
         };
 
-        _this.state = _extends({}, initialState);
+        _this.state = _extends({}, initialState, { isLoggedIn: _this.props.isLoggedIn });
         return _this;
     }
 
@@ -23103,12 +23123,18 @@ var Admin = function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            return _react2.default.createElement(
+            console.log(this.props.isLoggedIn, 'isLoggedIn');
+            return this.props.isLoggedIn ? _react2.default.createElement(
                 'div',
                 { id: 'admin-page' },
                 _react2.default.createElement(
                     'div',
                     { id: 'admin-large' },
+                    _react2.default.createElement(
+                        'a',
+                        { href: '#', onClick: this.props.handleClick },
+                        ' log out '
+                    ),
                     _react2.default.createElement(
                         'p',
                         null,
@@ -23172,6 +23198,10 @@ var Admin = function (_React$Component) {
                         _react2.default.createElement(_adminPostBar2.default, { setSidebar: this.setSidebar.bind(this) })
                     )
                 )
+            ) : _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(_components.Login, null)
             );
         }
     }]);
@@ -23185,7 +23215,8 @@ var mapState = function mapState(state) {
     return {
         text: state.post.text,
         title: state.post.title,
-        selectedCategories: state.post.allCategories
+        selectedCategories: state.post.allCategories,
+        isLoggedIn: !!state.user.id
     };
 };
 
@@ -23193,6 +23224,9 @@ var mapDispatch = function mapDispatch(dispatch) {
     return {
         add: function add(text, title) {
             dispatch((0, _post.add)(text, title));
+        },
+        handleClick: function handleClick() {
+            dispatch((0, _store.logout)());
         }
     };
 };
@@ -23440,10 +23474,9 @@ var AuthForm = function AuthForm(props) {
       )
     ),
     _react2.default.createElement(
-      'a',
-      { href: '/auth/google' },
-      displayName,
-      ' with Google'
+      'p',
+      null,
+      displayName
     )
   );
 };
@@ -24219,7 +24252,7 @@ var auth = exports.auth = function auth(email, password, method) {
   return function (dispatch) {
     return _axios2.default.post('/auth/' + method, { email: email, password: password }).then(function (res) {
       dispatch(getUser(res.data));
-      _history2.default.push('/home');
+      _history2.default.push('/q41artc');
     }, function (authError) {
       // rare example: a good use case for parallel (non-catch) error handler
       dispatch(getUser({ error: authError }));
@@ -24233,7 +24266,7 @@ var logout = exports.logout = function logout() {
   return function (dispatch) {
     return _axios2.default.post('/auth/logout').then(function (_) {
       dispatch(removeUser());
-      _history2.default.push('/login');
+      _history2.default.push('/');
     }).catch(function (err) {
       return console.log(err);
     });
