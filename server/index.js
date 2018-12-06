@@ -13,6 +13,8 @@ const app = express()
 const socketio = require('socket.io')
 const {Post, Category, Image} = require('./db/models')
 const Uploader = require('s3-image-uploader');
+const Twit = require('twit');
+
 
 module.exports = app
 
@@ -28,6 +30,17 @@ let secrets;
 if (process.env.NODE_ENV !== 'production') {
   secrets = require('../secrets')
 }
+
+const config = {
+  consumer_key: 'vJ9q7VsWWP0BllmouWYr12yWG',
+  consumer_secret: '6ArrtgzZP3uE7r0pmonJXjnR77ndFLUKW615MzqaTP90aX0rDV',
+  access_token: '2948033138-7K6rtnfJzr7m6WlG7bjgzrwXRlRyac0yvil06Y7',
+  access_token_secret: 'nG3wyJIF5fY7YFzeAZZiWdJDaBsHsz75PwQabCSlNXSGa',
+  timeout_ms: 60 * 1000
+};
+
+
+
 // passport registration
 passport.serializeUser((user, done) => done(null, user.id))
 passport.deserializeUser((id, done) =>
@@ -48,7 +61,7 @@ const createApp = () => {
 
   // session middleware with passport
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'my best friend is Jon',
+    secret: process.env.SESSION_SECRET || 'abc',
     store: sessionStore,
     resave: false,
     saveUninitialized: false
@@ -78,6 +91,8 @@ const createApp = () => {
     console.log(req.path)
      next()
   });
+
+
 
   app.post('/post', function(req, res){
     Post.create(req.body)
@@ -123,37 +138,24 @@ app.put('/update/:postId', function(req, res){
 
 })
 
+const Twitter = new Twit(config);
+
 
 app.get('/get', function(req, res){
-  let postIds, categoryData, packet
-  Post.findAll()
-  .then(function(posts){
-    postIds = posts.map((value) => {return value.id.toString()})
-     categoryData = [];
+  console.log(req)
+  let data;
+  console.log("ROUTE HITTT");
+  Twitter.get('https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=justinbieber&count=5', (req, res) => {
+    console.log(res, 'Twitter get log');
+    let array = Array.from(res)
 
-    for (let i = 0; i < posts.length; i++){
-      categoryData[i] = { id: posts[i].id, tags: [], title: posts[i].title, content: posts[i].content}
-    }
-
-     packet = {posts, postIds, categoryData}
-    return packet
-  })
-    .then(function(){
-      return Category.findAll({where: { postId: packet.postIds}})
+    let result = array.map((value) => {
+        return {content: value.text, url: value.user.url, retweets: value.retweet_count, imgUrl: value.user.profile_image_url }
     })
-     .then(function(cats){
-          cats.map(function(value){
-            let index = packet.categoryData.findIndex(i => i.id == value.postId);
-           if (!packet.categoryData[index].tags.includes('#' + value.category)){
-              packet.categoryData[index].tags.push( '#' + value.category)
-            }
-          })
-        })
-        .then(function(){
-          let posts = packet.posts;
-          res.json({message: 'here are all posts', info: posts, categories: categoryData })
-        })
-        .catch(error => console.error(error))
+    data  = result
+  }).catch(err => console.log(err));
+  console.log(data, 'databalls')
+  res.send({output: data})
 })
 
 app.get('/getPostById/:id', function(req, res){

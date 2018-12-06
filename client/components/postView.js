@@ -44,8 +44,7 @@ const mapDispatch = (dispatch) => {
 return (
         {
             getOne: (id) => {
-                axios.get(`/getPostById/${id}`)
-                    .then(res => {
+                axios.get(`/getPostById/${id}`).then(res => {
                         dispatch(getOnePost(res.data.info))
                 }   )
             }
