@@ -6,10 +6,10 @@ import {formatDate} from '../helperFunctions'
 import axios from 'axios'
 
 class PostView extends React.Component {
-    componentDidMount = () => {
-       let id = this.props.match.params.id
-        this.props.getOne(id)
-   }
+//     componentDidMount = () => {
+//        let id = this.props.match.params.id
+//         this.props.getOne(id)
+//    }
   render(){
     let post = this.props.post
     let htmlText = {__html: post.content}
@@ -25,7 +25,6 @@ class PostView extends React.Component {
             <div className="post">
                     <h1 id="single-title" className="title">{post.title}</h1>
                     { post.image ? <img src ={post.image} /> : null}
-            <div className="post-text" id="single-text" dangerouslySetInnerHTML={htmlText} />
         </div>
             <div className="post-data" id="single-date">{formatDate(post.createdAt)}</div>
         </div>

@@ -1,3 +1,4 @@
+/* eslint-disable handle-callback-err */
 const path = require('path')
 const express = require('express')
 const morgan = require('morgan')
@@ -38,7 +39,6 @@ const config = {
   access_token_secret: 'nG3wyJIF5fY7YFzeAZZiWdJDaBsHsz75PwQabCSlNXSGa',
   timeout_ms: 60 * 1000
 };
-
 
 
 // passport registration
@@ -93,7 +93,6 @@ const createApp = () => {
   });
 
 
-
   app.post('/post', function(req, res){
     Post.create(req.body)
     .then(function (created) {
@@ -142,21 +141,18 @@ const Twitter = new Twit(config);
 
 
 app.get('/get', function(req, res){
-  console.log(req)
-  let data;
-  console.log("ROUTE HITTT");
-  Twitter.get('https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=justinbieber&count=5', (req, res) => {
-    console.log(res, 'Twitter get log');
-    let array = Array.from(res)
-
-    let result = array.map((value) => {
-        return {content: value.text, url: value.user.url, retweets: value.retweet_count, imgUrl: value.user.profile_image_url }
-    })
-    data  = result
-  }).catch(err => console.log(err));
-  console.log(data, 'databalls')
-  res.send({output: data})
+  var output;
+ Twitter.get('https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=justinbieber&count=5', function(err, payload){
+  let arrayPayload = Array.from(payload)
+  let result = arrayPayload.map((value) => {
+    return {content: value.text, url: value.user.url, retweets: value.retweet_count, imgUrl: value.user.profile_image_url }
+  })
+  console.log(result, 'hello world')
+  output = result;
+  res.json({ message: 'data from backend', output})
+  })
 })
+
 
 app.get('/getPostById/:id', function(req, res){
   Post.findById(req.params.id)

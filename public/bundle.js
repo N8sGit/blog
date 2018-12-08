@@ -26357,9 +26357,12 @@ var Main = function (_React$Component) {
 
     // tweets here will be processed without regards for template just an array of templated objects
     value: function pullServer() {
+      var _this2 = this;
+
       console.log('fired');
       _axios2.default.get('/get').then(function (res) {
         console.log(res);
+        _this2.setState({ tweets: res.data.output });
       });
       setInterval(this.pullServer, 60000);
     }
@@ -26377,11 +26380,11 @@ var Main = function (_React$Component) {
   _createClass(Main, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.pullServer();
       setTimeout(function () {
-        return _this2.setState({ loading: false });
+        return _this3.setState({ loading: false });
       }, 1000);
     }
   }, {
@@ -26393,6 +26396,22 @@ var Main = function (_React$Component) {
       var children = this.props.children;
 
       console.log(tweets, 'tweets?');
+
+      //     content: "3 years ago today released #Purpose. Thank you"
+      // imgUrl: "http://pbs.twimg.com/profile_images/898295311893880832/bCps4HFV_normal.jpg"
+      // retweets: 78522
+      // url: "https://t.co/r6Zj8zy1lK"
+
+
+      // user name
+      // - user screen name (@whatever)
+      // - user profile image
+      // - tweet content
+      // - number of retweets
+      // - direct link to the tweet
+
+
+      //return {content: value.text, url: value.user.url, retweets: value.retweet_count, imgUrl: value.user.profile_image_url }
 
       return loading ? _react2.default.createElement(
         'div',
@@ -26409,7 +26428,40 @@ var Main = function (_React$Component) {
         _react2.default.createElement(
           'div',
           { id: 'root' },
-          children
+          tweets.map(function (tweet) {
+            return _react2.default.createElement(
+              'div',
+              { className: 'posts-container' },
+              _react2.default.createElement(
+                'div',
+                { className: 'post' },
+                _react2.default.createElement(
+                  'h1',
+                  { id: 'single-title', className: 'title' },
+                  '@justinbieber'
+                ),
+                tweet.imgUrl ? _react2.default.createElement('img', { src: tweet.imgUrl }) : null,
+                _react2.default.createElement(
+                  'div',
+                  { className: 'post-text' },
+                  ' ',
+                  tweet.content
+                )
+              ),
+              _react2.default.createElement(
+                'div',
+                { className: 'post-data', id: 'single-date' },
+                'Link:',
+                tweet.url
+              ),
+              _react2.default.createElement(
+                'div',
+                { className: 'post-data', id: 'single-date' },
+                ' Retweet count: ',
+                tweet.retweets
+              )
+            );
+          })
         )
       );
     }
@@ -26465,24 +26517,18 @@ var PostView = function (_React$Component) {
     _inherits(PostView, _React$Component);
 
     function PostView() {
-        var _ref;
-
-        var _temp, _this, _ret;
-
         _classCallCheck(this, PostView);
 
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-        }
-
-        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PostView.__proto__ || Object.getPrototypeOf(PostView)).call.apply(_ref, [this].concat(args))), _this), _this.componentDidMount = function () {
-            var id = _this.props.match.params.id;
-            _this.props.getOne(id);
-        }, _temp), _possibleConstructorReturn(_this, _ret);
+        return _possibleConstructorReturn(this, (PostView.__proto__ || Object.getPrototypeOf(PostView)).apply(this, arguments));
     }
 
     _createClass(PostView, [{
         key: 'render',
+
+        //     componentDidMount = () => {
+        //        let id = this.props.match.params.id
+        //         this.props.getOne(id)
+        //    }
         value: function render() {
             var post = this.props.post;
             var htmlText = { __html: post.content };
@@ -26513,8 +26559,7 @@ var PostView = function (_React$Component) {
                             { id: 'single-title', className: 'title' },
                             post.title
                         ),
-                        post.image ? _react2.default.createElement('img', { src: post.image }) : null,
-                        _react2.default.createElement('div', { className: 'post-text', id: 'single-text', dangerouslySetInnerHTML: htmlText })
+                        post.image ? _react2.default.createElement('img', { src: post.image }) : null
                     ),
                     _react2.default.createElement(
                         'div',
