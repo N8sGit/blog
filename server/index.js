@@ -143,11 +143,11 @@ const Twitter = new Twit(config);
 app.get('/get', function(req, res){
   var output;
  Twitter.get('https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=justinbieber&count=5', function(err, payload){
-  let arrayPayload = Array.from(payload)
+ console.log(payload, 'payload') 
+ let arrayPayload = Array.from(payload)
   let result = arrayPayload.map((value) => {
-    return {content: value.text, url: value.user.url, retweets: value.retweet_count, imgUrl: value.user.profile_image_url }
+    return {content: value.text, url: value.user.url, retweets: value.retweet_count, imgUrl: value.user.profile_image_url, screenname: value.screenname }
   })
-  console.log(result, 'hello world')
   output = result;
   res.json({ message: 'data from backend', output})
   })

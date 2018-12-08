@@ -68,6 +68,7 @@ class Main extends React.Component{
                   <div className="post-text"> {tweet.content}</div>
           </div>
           
+          <div className="post-data" id="single-date">sn: @{tweet.screenName}</div>
           <div className="post-data" id="single-date">Link:{tweet.url}</div>
           <div className="post-data" id="single-date"> Retweet count: {tweet.retweets}</div>
         

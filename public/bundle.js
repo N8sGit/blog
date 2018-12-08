@@ -26451,6 +26451,12 @@ var Main = function (_React$Component) {
               _react2.default.createElement(
                 'div',
                 { className: 'post-data', id: 'single-date' },
+                'sn: @',
+                tweet.screenName
+              ),
+              _react2.default.createElement(
+                'div',
+                { className: 'post-data', id: 'single-date' },
                 'Link:',
                 tweet.url
               ),
